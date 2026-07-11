@@ -3,6 +3,8 @@ import { AppShell } from "@/components/AppShell";
 import { Field, Button } from "@/components/ui";
 import { completeOnboarding } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 const GOALS = [
   { value: "BUILD_MUSCLE", label: "Build muscle" },
   { value: "LOSE_WEIGHT", label: "Lose weight" },

@@ -24,11 +24,50 @@ Self-motivated fitness enthusiasts (21–60) who want coaching-level structure w
 | Phase 3 | AI form check (squat + calf raise) | Month 6–8 |
 | Phase 4 | Subscription monetisation | Month 9+ |
 
+## Tech Stack
+
+- **Next.js 16** (App Router, TypeScript) — front-and-back
+- **PostgreSQL** via **Prisma 7** (pg driver adapter)
+- **Tailwind CSS v4** (design tokens in `src/app/globals.css`)
+- **pnpm**
+
+## Local Development
+
+Prerequisites: Node 20+, pnpm, Docker.
+
+```bash
+pnpm install                 # install deps (runs prisma generate)
+cp .env.example .env         # local database URL
+pnpm db:up                   # start Postgres (docker compose)
+pnpm db:migrate              # apply migrations
+pnpm db:seed                 # seed muscle groups, exercises, recovery cards
+pnpm dev                     # http://localhost:3000
+```
+
+Useful scripts: `pnpm db:studio` (Prisma Studio), `pnpm db:down` (stop Postgres),
+`pnpm lint`, `pnpm build`.
+
+### What works today
+
+The onboarding → plan vertical slice is wired end-to-end against Postgres: the
+onboarding form creates a user/profile/injuries and generates a persisted weekly
+plan (equipment-filtered, injury-aware). Phase 3/4 screens (form check, premium)
+are static UI. **Auth and all AI integrations are stubbed** — see issue #1.
+
+## Project Structure
+
+- `prisma/schema.prisma` — data model (mirrors [ER diagram](docs/er-diagram.md))
+- `src/app/*` — routed screens (App Router)
+- `src/components/*` — shared UI
+- `src/lib/*` — Prisma client, plan generator
+- `docs/*` — product docs, ER diagram, original UI mockups (`docs/app/`)
+
 ## Docs
 
 - [Product Brief](docs/product-brief.md)
 - [User Personas](docs/personas.md)
 - [PRD](docs/prd.md)
+- [ER Diagram](docs/er-diagram.md)
 
 ## Business Model
 
