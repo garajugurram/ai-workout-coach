@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workout Coach — UI (HTML + CSS)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-header">
+    <div class="kicker">AI Workout Coach · v1.0</div>
+    <h1>App UI — HTML &amp; CSS</h1>
+    <p class="subtitle">Clean, separated HTML/CSS build of the app. Each screen is a face of the data model in <code>docs/er-diagram.md</code>; the dashed panel under every screen lists the entities that back it. Styling lives entirely in <code>styles.css</code>.</p>
+    <div class="legend">
+      <span><span class="tag">catalog</span> shared reference tables</span>
+      <span><b style="color:var(--accent-2)">■</b> read entity &nbsp; <b style="color:var(--accent)">■</b> written entity</span>
+      <span>Filter by phase to follow the roadmap →</span>
+    </div>
+  </header>
+
+  <nav class="phase-nav">
+    <button class="active" data-p="all">All screens</button>
+    <button data-p="1">Phase 1 · MVP</button>
+    <button data-p="2">Phase 2 · Playlists</button>
+    <button data-p="3">Phase 3 · Form Check</button>
+    <button data-p="4">Phase 4 · Billing</button>
+  </nav>
+
+  <div class="gallery">
+
+    <!-- 1 · ONBOARDING -->
+    <section class="screen-card" data-p="1">
+      <div class="screen-title"><span class="num">1</span><h3>Onboarding</h3><span class="phase">Phase 1</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Let's build your plan</div>
+          <div class="app-sub">5 questions · about 90 seconds</div>
+          <div class="field"><div class="lbl">Primary goal</div><div class="opts">
+            <span class="chip on">Build muscle</span><span class="chip">Lose weight</span><span class="chip">Endurance</span></div></div>
+          <div class="field"><div class="lbl">Equipment</div><div class="opts">
+            <span class="chip">Full gym</span><span class="chip on">Home gym</span><span class="chip">None</span></div></div>
+          <div class="field"><div class="lbl">Days / week</div><div class="opts">
+            <span class="chip">2</span><span class="chip on">3</span><span class="chip">4</span><span class="chip">5+</span></div></div>
+          <div class="field"><div class="lbl">Injuries / limitations</div><div class="opts">
+            <span class="chip on2">Left knee</span><span class="chip">+ add</span></div></div>
+          <div class="btn">Generate my week →</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e w">ONBOARDING_PROFILE</span><span class="e w">INJURY_LIMITATION</span>
+        <span class="e">MUSCLE_GROUP</span><span class="e w">USER</span></div>
+    </section>
+
+    <!-- 2 · WEEKLY PLAN -->
+    <section class="screen-card" data-p="1">
+      <div class="screen-title"><span class="num">2</span><h3>Weekly Plan</h3><span class="phase">Phase 1</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Week 3 · Build muscle</div>
+          <div class="app-sub">3 sessions · adapted from Week 2</div>
+          <div class="week">
+            <div class="day"><span class="dow">Mon</span><div class="info"><b>Upper Push <span class="pill str">STRENGTH</span></b><span>Chest · Shoulders · Triceps</span></div><span class="dur">52m</span></div>
+            <div class="day"><span class="dow">Tue</span><div class="info"><b>Mobility <span class="pill mob">MOB</span></b><span>Active recovery</span></div><span class="dur">20m</span></div>
+            <div class="day"><span class="dow">Wed</span><div class="info"><b>Lower <span class="pill mob">HYPER</span></b><span>Quads · Glutes · Calves</span></div><span class="dur">48m</span></div>
+            <div class="day rest"><span class="dow">Thu</span><div class="info"><b>Rest day</b><span>Recovery</span></div></div>
+            <div class="day"><span class="dow">Fri</span><div class="info"><b>Full Body <span class="pill car">CARDIO</span></b><span>Conditioning circuit</span></div><span class="dur">40m</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e">WORKOUT_PLAN</span><span class="e">WORKOUT_DAY</span>
+        <span class="e d">adapted_from_plan_id →</span></div>
+    </section>
+
+    <!-- 3 · WORKOUT DAY -->
+    <section class="screen-card" data-p="1 2">
+      <div class="screen-title"><span class="num">3</span><h3>Workout Day</h3><span class="phase">Phase 1 · 2</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Upper Push</div>
+          <div class="app-sub">Mon · ~52 min · 4 exercises</div>
+          <div class="exrow"><div class="top"><b>Barbell Bench Press</b><span class="mg">Chest</span></div>
+            <div class="sets"><div class="set"><div class="s">SET 1</div><div class="v">8 × 60kg</div></div>
+            <div class="set"><div class="s">SET 2</div><div class="v">8 × 60kg</div></div>
+            <div class="set"><div class="s">SET 3</div><div class="v">6 × 65kg</div></div></div></div>
+          <div class="exrow"><div class="top"><b>Overhead Press</b><span class="mg">Shoulders</span></div>
+            <div class="sets"><div class="set"><div class="s">SET 1</div><div class="v">10 × 30</div></div>
+            <div class="set"><div class="s">SET 2</div><div class="v">10 × 30</div></div>
+            <div class="set"><div class="s">SET 3</div><div class="v">8 × 32</div></div></div></div>
+          <div class="field" style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">🎧</span><div><b style="font-size:12px">High-intensity mix</b>
+            <div style="font-size:10.5px;color:var(--muted)">YouTube · hip-hop · 48 min</div></div></div>
+          <div class="btn hot">Start workout</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e">WORKOUT_DAY_EXERCISE</span><span class="e">EXERCISE</span>
+        <span class="e">EXERCISE_SET</span><span class="e">PLAYLIST</span><span class="tag">catalog</span></div>
+    </section>
+
+    <!-- 4 · AUDIO BRIEFING -->
+    <section class="screen-card" data-p="1">
+      <div class="screen-title"><span class="num">4</span><h3>Monday Briefing</h3><span class="phase">Phase 1</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Your week is ready</div>
+          <div class="app-sub">60-second audio briefing</div>
+          <div class="audio">
+            <div class="disc"><div>▶</div></div>
+            <b style="font-size:13px">Week 3 · What's ahead</b>
+            <div class="wave">
+              <i style="height:40%"></i><i style="height:70%"></i><i style="height:100%"></i><i style="height:55%"></i>
+              <i style="height:85%"></i><i style="height:35%"></i><i style="height:60%"></i><i style="height:90%"></i>
+              <i style="height:45%"></i><i style="height:75%"></i><i style="height:50%"></i></div>
+            <div style="font-size:11px;color:var(--muted)">3 sessions · focus on push strength ·<br>intensity up 8% from last week</div>
+          </div>
+          <div class="btn ghost">▶ Play briefing · 0:58</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e">AUDIO_BRIEFING</span>
+        <span class="e d">status · played_at · focus_areas</span></div>
+    </section>
+
+    <!-- 5 · POST-WORKOUT -->
+    <section class="screen-card" data-p="1">
+      <div class="screen-title"><span class="num">5</span><h3>Post-Workout</h3><span class="phase">Phase 1</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Nice work 💪</div>
+          <div class="app-sub">How did that session feel?</div>
+          <div class="field" style="text-align:center">
+            <div class="mic">●</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:8px">Recording… 0:12 / 1:00</div>
+            <div class="recbar" style="margin-top:8px"><i></i></div>
+          </div>
+          <div style="font-size:11px;color:var(--dim);text-align:center">Voice note auto-deletes in 24h · we keep only the adjustment</div>
+          <div class="app-sub" style="margin-top:4px;font-weight:800;color:var(--ink)">Recovery stretches</div>
+          <div class="rc"><div class="ic">🧘</div><div><b>Doorway Chest Stretch</b><span>Chest · 30s</span></div></div>
+          <div class="rc"><div class="ic">🤸</div><div><b>Cross-Body Shoulder</b><span>Shoulders · 30s</span></div></div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e w">WORKOUT_SESSION</span><span class="e w">VOICE_NOTE</span>
+        <span class="e w">SESSION_RECOVERY_CARD</span><span class="e">RECOVERY_CARD</span><span class="tag">catalog</span></div>
+    </section>
+
+    <!-- 6 · ADAPTATION -->
+    <section class="screen-card" data-p="1">
+      <div class="screen-title"><span class="num">6</span><h3>Adaptation Applied</h3><span class="phase">Phase 1</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">We adjusted your plan</div>
+          <div class="app-sub">Based on your voice note</div>
+          <div class="adapt">
+            <div class="k">You said</div>
+            <div style="font-size:13px;margin:4px 0 2px">“Bench felt easy but my legs were smoked.”</div>
+            <div class="delta"><span>Bench Press</span><span class="up" style="margin-left:auto">↑ +7% load</span></div>
+            <div class="delta"><span>Thursday volume</span><span class="dn" style="margin-left:auto">↓ −12%</span></div>
+            <div class="delta"><span>Fatigue signal</span><span class="up" style="margin-left:auto">+ extra rest day</span></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted)">Extracted signals feed next week's plan generation automatically.</div>
+          <div class="btn ghost">See updated Week 4</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e">VOICE_NOTE_SIGNAL</span><span class="e w">ADAPTATION</span>
+        <span class="e d">→ target_plan / day / exercise</span></div>
+    </section>
+
+    <!-- 7 · FORM CHECK UPLOAD -->
+    <section class="screen-card" data-p="3">
+      <div class="screen-title"><span class="num">7</span><h3>Form Check</h3><span class="phase">Phase 3</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">AI Form Check</div>
+          <div class="app-sub">Upload a video · squat or calf raise</div>
+          <div class="field"><div class="lbl">Exercise</div><div class="opts">
+            <span class="chip on">Squat</span><span class="chip">Calf raise</span></div></div>
+          <div class="field" style="text-align:center;padding:24px 12px;border-style:dashed">
+            <div style="font-size:30px">🎥</div>
+            <div style="font-size:12px;margin-top:6px">Tap to upload</div>
+            <div style="font-size:10.5px;color:var(--dim)">MP4 / MOV · max 60s</div></div>
+          <div class="disclaimer">⚠ This feedback is AI-generated and for informational purposes only — not a substitute for a qualified professional. Tap to acknowledge before results.</div>
+          <div class="btn">Analyze form</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e w">FORM_CHECK</span><span class="e">EXERCISE</span>
+        <span class="e d">is_form_check_supported · disclaimer_acknowledged_at</span></div>
+    </section>
+
+    <!-- 8 · FORM RESULT -->
+    <section class="screen-card" data-p="3">
+      <div class="screen-title"><span class="num">8</span><h3>Form Result</h3><span class="phase">Phase 3</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Squat · Form Score</div>
+          <div class="score"><div><span class="num">8</span><span class="of">/ 10</span></div></div>
+          <div style="font-size:12px;color:var(--accent-2);text-align:center;font-weight:700;margin-top:-6px">Solid depth &amp; control</div>
+          <div class="fb">Good depth — hips break below parallel.</div>
+          <div class="fb">Knees track over toes, no valgus collapse.</div>
+          <div class="fb">Slight forward lean — brace core harder.</div>
+          <div class="fb">Keep heels planted through the drive.</div>
+          <div style="font-size:10.5px;color:var(--dim);text-align:center;margin-top:4px">Saved to history · last 10 checks kept</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e w">FORM_CHECK</span><span class="e w">FORM_CHECK_FEEDBACK_ITEM</span>
+        <span class="e d">score · confidence · status</span></div>
+    </section>
+
+    <!-- 9 · SUBSCRIPTION -->
+    <section class="screen-card" data-p="4">
+      <div class="screen-title"><span class="num">9</span><h3>Go Premium</h3><span class="phase">Phase 4</span></div>
+      <div class="phone"><div class="notch"></div><div class="app">
+        <div class="statusbar"><span>9:41</span><span>●●● ⌟ 100%</span></div>
+        <div class="app-body">
+          <div class="app-h">Unlock everything</div>
+          <div class="app-sub">Your progress is worth it</div>
+          <div class="plan"><b style="font-size:13px">Free</b><div class="price">$0</div>
+            <div class="feat">Weekly plan &amp; adaptation</div><div class="feat">Audio briefing</div></div>
+          <div class="plan pro"><b style="font-size:13px;color:var(--accent)">Premium</b>
+            <div class="price">$10<span> / month</span></div>
+            <div class="feat">Full form-check history</div>
+            <div class="feat">Advanced customisation</div>
+            <div class="feat">Expanded exercise library</div></div>
+          <div class="btn">Start 7-day trial</div>
+          <div style="font-size:10px;color:var(--dim);text-align:center">Billed via App Store · cancel anytime</div>
+        </div>
+      </div></div>
+      <div class="maps"><div class="mh">Backing entities</div>
+        <span class="e w">SUBSCRIPTION</span><span class="e w">PAYMENT_TRANSACTION</span>
+        <span class="e d">tier · status · provider</span></div>
+    </section>
+
+  </div>
+
+  <footer class="page-footer">
+    AI Workout Coach — 9 screens mapping all 24 entities of <code>docs/er-diagram.md</code>.
+    HTML in <code>index.html</code> · styling in <code>styles.css</code>.
+  </footer>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.phase-nav button');
+  const cards = document.querySelectorAll('.screen-card');
+  buttons.forEach(b => b.addEventListener('click', () => {
+    buttons.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const p = b.dataset.p;
+    cards.forEach(c => {
+      const phases = c.dataset.p.split(' ');
+      const show = p === 'all' || phases.includes(p);
+      c.classList.toggle('hidden', !show);
+    });
+  });
+</script>
+</body>
+</html>

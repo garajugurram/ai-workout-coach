@@ -1,0 +1,559 @@
+// AI Workout Coach — Prisma schema
+// Mirrors docs/er-diagram.md (relational, PostgreSQL). See that file for the
+// entity relationship diagram and retention/exclusion notes.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum AuthProviderType {
+  EMAIL
+  GOOGLE
+  APPLE
+}
+
+enum Goal {
+  BUILD_MUSCLE
+  LOSE_WEIGHT
+  ENDURANCE
+  GENERAL
+}
+
+enum Equipment {
+  FULL_GYM
+  HOME_GYM
+  NONE
+}
+
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum MuscleRole {
+  PRIMARY
+  SECONDARY
+}
+
+enum ExerciseType {
+  STRENGTH
+  HYPERTROPHY
+  CARDIO
+  MOBILITY
+}
+
+enum PlaylistEnergy {
+  HIGH
+  MEDIUM
+  HIGH_TEMPO
+  LOW
+}
+
+enum PlanStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum SessionStatus {
+  COMPLETED
+  SKIPPED
+}
+
+enum PerceivedEffort {
+  EASY
+  MODERATE
+  HARD
+}
+
+enum FatigueLevel {
+  LOW
+  MODERATE
+  HIGH
+}
+
+enum VoiceNoteStatus {
+  PENDING
+  PROCESSED
+  DISCARDED
+}
+
+enum SignalType {
+  EFFORT
+  FATIGUE
+  EXERCISE_DIFFICULTY
+}
+
+enum AdaptationType {
+  INCREASE_LOAD
+  DECREASE_VOLUME
+  REDUCE_EXERCISE_LOAD
+  ADD_REST_DAY
+  NONE
+}
+
+enum BriefingStatus {
+  PENDING
+  AVAILABLE
+  ARCHIVED
+}
+
+enum FormCheckStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+  LOW_CONFIDENCE
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  CANCELED
+  EXPIRED
+}
+
+enum BillingProvider {
+  STRIPE
+  APP_STORE
+  PLAY_STORE
+}
+
+enum TransactionType {
+  CHARGE
+  REFUND
+}
+
+enum TransactionStatus {
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ============================================================================
+// IDENTITY & PROFILE
+// ============================================================================
+
+model User {
+  id          String   @id @default(cuid())
+  displayName String?
+  email       String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  authProviders AuthProvider[]
+  profile       OnboardingProfile?
+  plans         WorkoutPlan[]
+  sessions      WorkoutSession[]
+  formChecks    FormCheck[]
+  subscription  Subscription?
+  transactions  PaymentTransaction[]
+
+  @@map("users")
+}
+
+model AuthProvider {
+  id          String           @id @default(cuid())
+  userId      String
+  provider    AuthProviderType
+  providerUid String
+  email       String?
+  createdAt   DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUid])
+  @@index([userId])
+  @@map("auth_providers")
+}
+
+model OnboardingProfile {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  primaryGoal     Goal
+  equipment       Equipment
+  daysPerWeek     Int
+  experienceLevel ExperienceLevel
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  injuries InjuryLimitation[]
+
+  @@map("onboarding_profiles")
+}
+
+model InjuryLimitation {
+  id            String   @id @default(cuid())
+  profileId     String
+  muscleGroupId String?
+  bodyPart      String?
+  note          String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  profile     OnboardingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  muscleGroup MuscleGroup?      @relation(fields: [muscleGroupId], references: [id])
+
+  @@index([profileId])
+  @@map("injury_limitations")
+}
+
+// ============================================================================
+// CATALOGS
+// ============================================================================
+
+model MuscleGroup {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  region String?
+
+  exercises     ExerciseMuscleGroup[]
+  recoveryCards RecoveryCard[]
+  injuries      InjuryLimitation[]
+
+  @@map("muscle_groups")
+}
+
+model Exercise {
+  id                   String       @id @default(cuid())
+  name                 String       @unique
+  description          String?
+  equipment            Equipment
+  exerciseType         ExerciseType
+  isFormCheckSupported Boolean      @default(false)
+  createdAt            DateTime     @default(now())
+
+  muscleGroups        ExerciseMuscleGroup[]
+  workoutDayExercises WorkoutDayExercise[]
+  voiceNoteSignals    VoiceNoteSignal[]
+  adaptations         Adaptation[]
+  formChecks          FormCheck[]
+
+  @@map("exercises")
+}
+
+model ExerciseMuscleGroup {
+  id            String     @id @default(cuid())
+  exerciseId    String
+  muscleGroupId String
+  role          MuscleRole @default(PRIMARY)
+
+  exercise    Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  muscleGroup MuscleGroup @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseId, muscleGroupId])
+  @@map("exercise_muscle_groups")
+}
+
+model RecoveryCard {
+  id              String   @id @default(cuid())
+  muscleGroupId   String
+  stretchName     String
+  durationSeconds Int
+  instruction     String
+  createdAt       DateTime @default(now())
+
+  muscleGroup MuscleGroup           @relation(fields: [muscleGroupId], references: [id])
+  sessions    SessionRecoveryCard[]
+
+  @@index([muscleGroupId])
+  @@map("recovery_cards")
+}
+
+model Playlist {
+  id                String         @id @default(cuid())
+  youtubePlaylistId String         @unique
+  title             String
+  energyLevel       PlaylistEnergy
+  genre             String?
+  url               String
+  cachedAt          DateTime       @default(now())
+
+  workoutDays WorkoutDay[]
+
+  @@map("playlists")
+}
+
+// ============================================================================
+// PLAN (versioned weekly)
+// ============================================================================
+
+model WorkoutPlan {
+  id                String     @id @default(cuid())
+  userId            String
+  adaptedFromPlanId String?
+  weekNumber        Int
+  weekStartDate     DateTime   @db.Date
+  status            PlanStatus @default(ACTIVE)
+  focusSummary      String?
+  generatedAt       DateTime   @default(now())
+  createdAt         DateTime   @default(now())
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adaptedFromPlan WorkoutPlan?   @relation("PlanAdaptation", fields: [adaptedFromPlanId], references: [id])
+  derivedPlans    WorkoutPlan[]  @relation("PlanAdaptation")
+  days            WorkoutDay[]
+  briefing        AudioBriefing?
+  adaptations     Adaptation[]
+
+  @@index([userId])
+  @@map("workout_plans")
+}
+
+model WorkoutDay {
+  id                   String        @id @default(cuid())
+  planId               String
+  playlistId           String?
+  dayOfWeek            Int
+  isRestDay            Boolean       @default(false)
+  workoutName          String?
+  workoutType          ExerciseType?
+  estimatedDurationMin Int?
+
+  plan        WorkoutPlan          @relation(fields: [planId], references: [id], onDelete: Cascade)
+  playlist    Playlist?            @relation(fields: [playlistId], references: [id])
+  exercises   WorkoutDayExercise[]
+  sessions    WorkoutSession[]
+  adaptations Adaptation[]
+
+  @@index([planId])
+  @@map("workout_days")
+}
+
+model WorkoutDayExercise {
+  id           String  @id @default(cuid())
+  workoutDayId String
+  exerciseId   String
+  orderIndex   Int
+  notes        String?
+
+  workoutDay WorkoutDay    @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
+  exercise   Exercise      @relation(fields: [exerciseId], references: [id])
+  sets       ExerciseSet[]
+
+  @@index([workoutDayId])
+  @@map("workout_day_exercises")
+}
+
+model ExerciseSet {
+  id                   String   @id @default(cuid())
+  workoutDayExerciseId String
+  setNumber            Int
+  targetReps           Int?
+  targetWeight         Decimal? @db.Decimal(6, 2)
+  targetRpe            Int?
+
+  workoutDayExercise WorkoutDayExercise @relation(fields: [workoutDayExerciseId], references: [id], onDelete: Cascade)
+
+  @@index([workoutDayExerciseId])
+  @@map("exercise_sets")
+}
+
+model AudioBriefing {
+  id                  String         @id @default(cuid())
+  planId              String         @unique
+  audioUrl            String?
+  durationSeconds     Int?
+  scriptText          String?
+  sessionCount        Int?
+  focusAreas          String?
+  intensityChangeNote String?
+  status              BriefingStatus @default(PENDING)
+  availableFrom       DateTime?
+  playedAt            DateTime?
+
+  plan WorkoutPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@map("audio_briefings")
+}
+
+// ============================================================================
+// EXECUTION
+// ============================================================================
+
+model WorkoutSession {
+  id                String        @id @default(cuid())
+  workoutDayId      String
+  userId            String
+  status            SessionStatus
+  durationActualMin Int?
+  completedAt       DateTime?
+  createdAt         DateTime      @default(now())
+
+  workoutDay    WorkoutDay            @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recoveryCards SessionRecoveryCard[]
+  voiceNote     VoiceNote?
+  adaptations   Adaptation[]
+
+  @@index([userId])
+  @@index([workoutDayId])
+  @@map("workout_sessions")
+}
+
+model SessionRecoveryCard {
+  id             String @id @default(cuid())
+  sessionId      String
+  recoveryCardId String
+  orderIndex     Int
+
+  session      WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  recoveryCard RecoveryCard   @relation(fields: [recoveryCardId], references: [id])
+
+  @@unique([sessionId, recoveryCardId])
+  @@map("session_recovery_cards")
+}
+
+// ============================================================================
+// ADAPTATION
+// ============================================================================
+
+model VoiceNote {
+  id              String           @id @default(cuid())
+  sessionId       String           @unique
+  audioUrl        String?
+  transcript      String?
+  perceivedEffort PerceivedEffort?
+  fatigueLevel    FatigueLevel?
+  status          VoiceNoteStatus  @default(PENDING)
+  recordedAt      DateTime         @default(now())
+  expiresAt       DateTime?
+
+  session     WorkoutSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  signals     VoiceNoteSignal[]
+  adaptations Adaptation[]
+
+  @@map("voice_notes")
+}
+
+model VoiceNoteSignal {
+  id          String     @id @default(cuid())
+  voiceNoteId String
+  exerciseId  String?
+  signalType  SignalType
+  value       String?
+  confidence  Decimal?   @db.Decimal(4, 3)
+
+  voiceNote VoiceNote @relation(fields: [voiceNoteId], references: [id], onDelete: Cascade)
+  exercise  Exercise? @relation(fields: [exerciseId], references: [id])
+
+  @@index([voiceNoteId])
+  @@map("voice_note_signals")
+}
+
+model Adaptation {
+  id                 String         @id @default(cuid())
+  sourceVoiceNoteId  String?
+  sourceSessionId    String
+  targetPlanId       String
+  targetWorkoutDayId String?
+  targetExerciseId   String?
+  adaptationType     AdaptationType
+  changeDescription  String?
+  appliedAt          DateTime?
+  createdAt          DateTime       @default(now())
+
+  sourceVoiceNote  VoiceNote?     @relation(fields: [sourceVoiceNoteId], references: [id])
+  sourceSession    WorkoutSession @relation(fields: [sourceSessionId], references: [id], onDelete: Cascade)
+  targetPlan       WorkoutPlan    @relation(fields: [targetPlanId], references: [id], onDelete: Cascade)
+  targetWorkoutDay WorkoutDay?    @relation(fields: [targetWorkoutDayId], references: [id])
+  targetExercise   Exercise?      @relation(fields: [targetExerciseId], references: [id])
+
+  @@index([targetPlanId])
+  @@map("adaptations")
+}
+
+// ============================================================================
+// FORM CHECK
+// ============================================================================
+
+model FormCheck {
+  id                       String          @id @default(cuid())
+  userId                   String
+  exerciseId               String
+  sessionId                String?
+  videoUrl                 String?
+  score                    Int?
+  confidence               Decimal?        @db.Decimal(4, 3)
+  status                   FormCheckStatus @default(PROCESSING)
+  errorReason              String?
+  disclaimerAcknowledgedAt DateTime?
+  createdAt                DateTime        @default(now())
+
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise      Exercise                @relation(fields: [exerciseId], references: [id])
+  feedbackItems FormCheckFeedbackItem[]
+
+  @@index([userId])
+  @@map("form_checks")
+}
+
+model FormCheckFeedbackItem {
+  id           String @id @default(cuid())
+  formCheckId  String
+  orderIndex   Int
+  feedbackText String
+
+  formCheck FormCheck @relation(fields: [formCheckId], references: [id], onDelete: Cascade)
+
+  @@index([formCheckId])
+  @@map("form_check_feedback_items")
+}
+
+// ============================================================================
+// BILLING
+// ============================================================================
+
+model Subscription {
+  id                      String             @id @default(cuid())
+  userId                  String             @unique
+  tier                    SubscriptionTier   @default(FREE)
+  status                  SubscriptionStatus @default(ACTIVE)
+  provider                BillingProvider?
+  providerSubscriptionRef String?
+  priceCents              Int?
+  currency                String?            @db.Char(3)
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  startedAt               DateTime           @default(now())
+  canceledAt              DateTime?
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions PaymentTransaction[]
+
+  @@map("subscriptions")
+}
+
+model PaymentTransaction {
+  id             String            @id @default(cuid())
+  subscriptionId String
+  userId         String
+  provider       BillingProvider
+  providerTxnRef String
+  amountCents    Int
+  currency       String            @db.Char(3)
+  type           TransactionType
+  status         TransactionStatus
+  occurredAt     DateTime          @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([userId])
+  @@map("payment_transactions")
+}
