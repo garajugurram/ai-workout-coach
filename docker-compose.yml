@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: awc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: awc
+      POSTGRES_PASSWORD: awc
+      POSTGRES_DB: ai_workout_coach
+    ports:
+      - "5432:5432"
+    volumes:
+      - awc-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U awc -d ai_workout_coach"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  awc-pgdata:
